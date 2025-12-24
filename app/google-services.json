@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "73172437796",
+    "project_id": "reportes-tecnicos-tracto",
+    "storage_bucket": "reportes-tecnicos-tracto.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:73172437796:android:1f827af67feab6a45b41b1",
+        "android_client_info": {
+          "package_name": "com.example.reportes"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB-pqd4x6qGI-LqAIno4UPC4tx4LAFjpc4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,7 +1,7 @@
 package com.example.reportes.Models
 
 data class SeccionItem(
-    val orden: Int = 0,
-    val fotoUrl: String = "",
-    val observacion: String = ""
+    var orden: Int = 0,
+    var fotoUri: String = "",
+    var observacion: String = ""
 )

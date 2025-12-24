@@ -7,6 +7,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.reportes.Models.SeccionItem
 import com.example.reportes.R
 
@@ -32,7 +33,17 @@ class SeccionAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = items[position]
 
-        holder.etObs.setText(item.observacion)
+        if (item.fotoUri.isNotEmpty()) {
+            Glide.with(holder.imgFoto.context)
+                .load(item.fotoUri)
+                .into(holder.imgFoto)
+        }
+
+        holder.etObs.setOnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus) {
+                items[position].observacion = holder.etObs.text.toString()
+            }
+        }
 
         holder.btnFoto.setOnClickListener {
             onFotoClick(position)
