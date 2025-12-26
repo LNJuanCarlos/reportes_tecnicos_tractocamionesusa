@@ -8,29 +8,89 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <EditText
-            android:layout_height="match_parent"
+        <TextView
+            android:text="Datos Generales"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp"
             android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <EditText
             android:id="@+id/etCliente"
-            android:hint="Cliente"/>
+            android:hint="Cliente"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
 
         <EditText
-            android:layout_height="match_parent"
-            android:layout_width="wrap_content"
             android:id="@+id/etMarca"
-            android:hint="Marca"/>
+            android:hint="Marca"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
 
         <EditText
-            android:layout_height="match_parent"
-            android:layout_width="wrap_content"
-            android:id="@+id/etVIN"
-            android:hint="VIN"/>
+            android:id="@+id/etVin"
+            android:hint="VIN"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+
+        <EditText
+            android:id="@+id/etModelo"
+            android:hint="Modelo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <EditText
+            android:id="@+id/etPlaca"
+            android:hint="Placa"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <EditText
+            android:id="@+id/etanio"
+            android:hint="Año"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <EditText
+            android:id="@+id/etcaja"
+            android:hint="Caja de Cambios"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <EditText
+            android:id="@+id/etmotorModelo"
+            android:hint="Motor - Modelo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <EditText
+            android:id="@+id/etMotorSerie"
+            android:hint="Motor - Serie"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <EditText
+            android:id="@+id/etKm"
+            android:hint="Kilometraje"
+            android:inputType="number"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <EditText
+            android:id="@+id/etHr"
+            android:hint="Horas"
+            android:inputType="number"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
 
         <Button
-            android:layout_height="match_parent"
-            android:layout_width="wrap_content"
-            android:id="@+id/btnContinuar"
-            android:text="Continuar"/>
+            android:id="@+id/btnGuardar"
+            android:text="Guardar datos generales"
+            android:layout_marginTop="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
 
     </LinearLayout>
 </ScrollView>

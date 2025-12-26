@@ -1,33 +1,27 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    android:padding="12dp"
+    android:padding="16dp"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <TextView
-        android:id="@+id/tvTituloSeccion"
-        android:text="PLACA / FRONTAL"
+        android:text="Evaluación técnica"
         android:textSize="20sp"
         android:textStyle="bold"
-        android:layout_width="match_parent"
+        android:layout_marginBottom="12dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvSeccion"
+        android:id="@+id/rvSecciones"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"/>
 
     <Button
-        android:id="@+id/btnAgregar"
-        android:text="Agregar observación"
+        android:id="@+id/btnFinalizar"
+        android:text="Finalizar evaluación"
+        android:enabled="false"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
-
-    <Button
-        android:id="@+id/btnGuardarSeccion"
-        android:text="Guardar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"/>
 </LinearLayout>

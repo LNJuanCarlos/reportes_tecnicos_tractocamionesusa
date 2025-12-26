@@ -1,5 +1,8 @@
 package com.example.reportes.Adapters
 
+import android.text.Editable
+import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,11 +11,13 @@ import android.widget.EditText
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.example.reportes.Models.SeccionItem
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.example.reportes.Models.ItemSeccion
 import com.example.reportes.R
+import java.io.File
 
 class SeccionAdapter(
-    private val items: MutableList<SeccionItem>,
+    private val items: MutableList<ItemSeccion>,
     private val onFotoClick: (Int) -> Unit,
     private val onEliminarClick: (Int) -> Unit
 ) : RecyclerView.Adapter<SeccionAdapter.ViewHolder>() {
@@ -33,24 +38,40 @@ class SeccionAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = items[position]
 
-        if (item.fotoUri.isNotEmpty()) {
-            Glide.with(holder.imgFoto.context)
-                .load(item.fotoUri)
-                .into(holder.imgFoto)
+        // FOTO
+        when {
+            item.fotoLocal.isNotEmpty() -> {
+                Glide.with(holder.imgFoto.context)
+                    .load(File(item.fotoLocal))
+                    .into(holder.imgFoto)
+            }
+
+            item.fotoUrl.isNotEmpty() -> {
+                Glide.with(holder.imgFoto.context)
+                    .load(item.fotoUrl)
+                    .into(holder.imgFoto)
+            }
+
+            else -> holder.imgFoto.setImageDrawable(null)
         }
 
-        holder.etObs.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) {
-                items[position].observacion = holder.etObs.text.toString()
+        // OBSERVACIÓN
+        holder.etObs.setText(item.observacion)
+
+        holder.etObs.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                items[holder.adapterPosition].observacion = s.toString()
             }
-        }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
 
         holder.btnFoto.setOnClickListener {
-            onFotoClick(position)
+            onFotoClick(holder.adapterPosition)
         }
 
         holder.btnEliminar.setOnClickListener {
-            onEliminarClick(position)
+            onEliminarClick(holder.adapterPosition)
         }
     }
 

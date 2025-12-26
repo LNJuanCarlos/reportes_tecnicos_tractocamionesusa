@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.googleService)
+    kotlin("kapt")
 }
 
 android {
@@ -58,6 +59,7 @@ dependencies {
     implementation(libs.firebaseDatabase)
     implementation(libs.loginGoogle)
     implementation(libs.glide)
+    kapt(libs.glideCompiler)
     implementation(libs.ccp)
     implementation(libs.circleImage)
     implementation(libs.play.services.location)

@@ -1,4 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths xmlns:android="http://schemas.android.com/apk/res/android">
-    <cache-path name="images" path="." />
+
+    <!-- Para filesDir -->
+    <files-path
+        name="files"
+        path="." />
+
+    <!-- (Opcional) Para cacheDir si luego lo usas -->
+    <cache-path
+        name="cache"
+        path="." />
+
 </paths>

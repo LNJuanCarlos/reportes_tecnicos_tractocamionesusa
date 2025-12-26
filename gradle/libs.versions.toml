@@ -50,6 +50,7 @@ firebaseAuth = {group = "com.google.firebase", name = "firebase-auth", version.r
 firebaseDatabase = {group = "com.google.firebase", name = "firebase-database", version.ref = "firebaseDatabase"}
 loginGoogle = {group = "com.google.android.gms", name = "play-services-auth", version.ref= "loginGoogleV"}
 glide = {group = "com.github.bumptech.glide", name = "glide", version.ref = "glideV"}
+glideCompiler = { group = "com.github.bumptech.glide", name = "compiler", version.ref = "glideV" }
 ccp = {group = "com.hbb20", name = "ccp", version.ref = "ccpV"}
 circleImage = {group = "de.hdodenhof", name = "circleimageview", version.ref = "circleImagenV"}
 firebaseStorage = { group = "com.google.firebase", name = "firebase-storage", version.ref = "firebaseStorageV" }
