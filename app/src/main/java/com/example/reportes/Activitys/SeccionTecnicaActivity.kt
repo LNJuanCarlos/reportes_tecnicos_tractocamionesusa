@@ -152,7 +152,7 @@ class SeccionTecnicaActivity : AppCompatActivity() {
     private fun tomarFoto(pos: Int) {
         currentPhotoIndex = pos
 
-        // 1️⃣ Permiso cámara
+        //  Permiso cámara
         if (ContextCompat.checkSelfPermission(
                 this,
                 Manifest.permission.CAMERA
@@ -166,28 +166,28 @@ class SeccionTecnicaActivity : AppCompatActivity() {
             return
         }
 
-        // 2️⃣ Crear archivo temporal
+        //  Crear archivo temporal
         val file = File.createTempFile(
             "foto_${System.currentTimeMillis()}",
             ".jpg",
             cacheDir
         )
 
-        // 🔥 ESTA ES LA RUTA LOCAL
+        //  ESTA ES LA RUTA LOCAL
         val currentPhotoPath = file.absolutePath
 
-        // 🔥 GUARDAMOS LOCAL (PARA QUE SE VEA AL INSTANTE)
+        //  GUARDAMOS LOCAL (PARA QUE SE VEA AL INSTANTE)
         items[pos].fotoLocal = currentPhotoPath
         adapter.notifyItemChanged(pos)
 
-        // 3️⃣ Crear URI
+        //  Crear URI
         photoUri = FileProvider.getUriForFile(
             this,
             "${packageName}.provider",
             file
         )
 
-        // 4️⃣ Lanzar cámara
+        //  Lanzar cámara
         takePictureLauncher.launch(photoUri!!)
     }
 

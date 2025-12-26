@@ -29,6 +29,7 @@ ccpV = "2.7.0"
 circleImagenV = "3.1.0"
 firebaseStorageV = "22.0.0"
 cardview = "1.0.0"
+poi = "5.2.5"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -60,6 +61,7 @@ google-maps = { group = "com.google.android.gms", name = "play-services-maps", v
 lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
 lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle" }
 androidx-cardview = { group = "androidx.cardview", name = "cardview", version.ref = "cardview" }
+poi-ooxml = { group = "org.apache.poi", name = "poi-ooxml", version.ref = "poi" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

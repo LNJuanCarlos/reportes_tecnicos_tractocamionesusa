@@ -11,8 +11,10 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.reportes.Adapters.SeccionHomeAdapter
+import com.example.reportes.Models.DatosGenerales
 import com.example.reportes.Models.SeccionHome
 import com.example.reportes.R
+import com.example.reportes.Utils.WordGenerator
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.UUID
 
@@ -40,6 +42,16 @@ class SiguienteSeccionActivity : AppCompatActivity() {
 
         val rv = findViewById<RecyclerView>(R.id.rvSecciones)
         val btnFinalizar = findViewById<Button>(R.id.btnFinalizar)
+        val btnGenerarWord = findViewById<Button>(R.id.btnGenerarWord)
+
+        btnGenerarWord.setOnClickListener {
+            WordGenerator.generarWordCompleto(
+                this,
+                evaluacionId
+            ) { file ->
+                WordGenerator.abrirWord(this, file)
+            }
+        }
 
         adapter = SeccionHomeAdapter(secciones) { seccion ->
             abrirSeccion(seccion)
@@ -49,6 +61,35 @@ class SiguienteSeccionActivity : AppCompatActivity() {
         rv.adapter = adapter
 
         cargarEstadoSecciones(btnFinalizar)
+    }
+
+    private fun generarWordDesdeHome() {
+
+        //val evaluacionId = /* el ID actual que estás usando */
+
+        val db = FirebaseFirestore.getInstance()
+
+        db.collection("evaluaciones")
+            .document(evaluacionId)
+            .collection("datosGenerales")
+            .document("info")
+            .get()
+            .addOnSuccessListener { doc ->
+
+                if (!doc.exists()) {
+                    Toast.makeText(this, "No hay datos generales", Toast.LENGTH_SHORT).show()
+                    return@addOnSuccessListener
+                }
+
+                val datos = doc.toObject(DatosGenerales::class.java)
+                    ?: return@addOnSuccessListener
+
+                val file = WordGenerator.generarWord(this, datos)
+                WordGenerator.abrirWord(this, file)
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "Error generando Word", Toast.LENGTH_LONG).show()
+            }
     }
 
     private fun abrirSeccion(seccion: SeccionHome) {

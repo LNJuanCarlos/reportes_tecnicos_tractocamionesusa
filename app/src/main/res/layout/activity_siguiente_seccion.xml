@@ -24,4 +24,11 @@
         android:enabled="false"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
+
+    <Button
+        android:id="@+id/btnGenerarWord"
+        android:text="Descargar Word"
+        android:enabled="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
 </LinearLayout>

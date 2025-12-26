@@ -67,5 +67,6 @@ dependencies {
     implementation(libs.google.maps)
     implementation(libs.lifecycle.viewmodel.ktx)
     implementation(libs.lifecycle.runtime.ktx)
+    implementation(libs.poi.ooxml)
 
 }
