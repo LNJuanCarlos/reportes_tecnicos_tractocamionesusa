@@ -24,9 +24,24 @@ object WordGenerator {
         evaluacionId: String,
         onFinish: (File) -> Unit
     ) {
-
         val db = FirebaseFirestore.getInstance()
-        val doc = XWPFDocument()
+
+        // ===============================
+        // ABRIR PLANTILLA DESDE ASSETS
+        // ===============================
+        val assetManager = context.assets
+        val inputStream = assetManager.open("plantilla_reporte_tecnico.docx")
+
+        // Copiamos a un archivo temporal para poder modificarlo
+        val templateFile = File(context.filesDir, "plantilla_temp.docx")
+        inputStream.use { input ->
+            templateFile.outputStream().use { output ->
+                input.copyTo(output)
+            }
+        }
+
+        // Abrimos el documento con Apache POI
+        val doc = XWPFDocument(FileInputStream(templateFile))
 
         // ===============================
         // TÍTULO
@@ -38,7 +53,6 @@ object WordGenerator {
             isBold = true
             fontSize = 16
         }
-
         doc.createParagraph()
 
         // ===============================
@@ -55,40 +69,71 @@ object WordGenerator {
 
                 if (datos != null) {
 
-                    val tituloDatos = doc.createParagraph()
-                    tituloDatos.createRun().apply {
-                        setText("DATOS GENERALES")
-                        isBold = true
+                    // -------------------------------
+                    // REEMPLAZAR PLACEHOLDERS
+                    // -------------------------------
+                    val datosMap = mapOf(
+                        "{{cliente}}" to datos.cliente,
+                        "{{marca}}" to datos.marca,
+                        "{{vin}}" to datos.vin,
+                        "{{modelo}}" to datos.modelo,
+                        "{{placa}}" to datos.placa,
+                        "{{anio}}" to datos.anio,
+                        "{{caja_cambios}}" to datos.cajaCambios,
+                        "{{motor_modelo}}" to datos.motorModelo,
+                        "{{motor_serie}}" to datos.motorSerie
+                    )
+
+                    // Reemplazar en todos los párrafos
+                    for (paragraph in doc.paragraphs) {
+                        var texto = paragraph.text
+                        for ((placeholder, valor) in datosMap) {
+                            texto = texto.replace(placeholder, valor)
+                        }
+                        val runs = paragraph.runs
+                        for (run in runs) run.setText("", 0)
+                        paragraph.createRun().setText(texto)
                     }
 
-                    val table = doc.createTable(9, 2)
+                    // Reemplazar también dentro de tablas
+                    for (table in doc.tables) {
+                        for (row in table.rows) {
+                            for (cell in row.tableCells) {
+                                var texto = cell.text
+                                for ((placeholder, valor) in datosMap) {
+                                    texto = texto.replace(placeholder, valor)
+                                }
+                                cell.removeParagraph(0)
+                                cell.setText(texto)
+                            }
+                        }
+                    }
 
-                    table.getRow(0).getCell(0).text = "CLIENTE"
-                    table.getRow(0).getCell(1).text = datos.cliente
-
-                    table.getRow(1).getCell(0).text = "MARCA"
-                    table.getRow(1).getCell(1).text = datos.marca
-
-                    table.getRow(2).getCell(0).text = "VIN"
-                    table.getRow(2).getCell(1).text = datos.vin
-
-                    table.getRow(3).getCell(0).text = "MODELO"
-                    table.getRow(3).getCell(1).text = datos.modelo
-
-                    table.getRow(4).getCell(0).text = "PLACA"
-                    table.getRow(4).getCell(1).text = datos.placa
-
-                    table.getRow(5).getCell(0).text = "AÑO"
-                    table.getRow(5).getCell(1).text = datos.anio
-
-                    table.getRow(6).getCell(0).text = "CAJA DE CAMBIOS"
-                    table.getRow(6).getCell(1).text = datos.cajaCambios
-
-                    table.getRow(7).getCell(0).text = "MOTOR-MODELO"
-                    table.getRow(7).getCell(1).text = datos.motorModelo
-
-                    table.getRow(8).getCell(0).text = "MOTOR-SERIE"
-                    table.getRow(8).getCell(1).text = datos.motorSerie
+                    // -------------------------------
+                    // AGREGAR FOTOS
+                    // -------------------------------
+                    // Suponiendo que `datos.fotos` es List<String> con paths locales o URLs descargadas
+                    datos.fotos?.forEach { fotoPath ->
+                        try {
+                            val paragraph = doc.createParagraph()
+                            paragraph.alignment = ParagraphAlignment.CENTER
+                            val run = paragraph.createRun()
+                            val imageFile = File(fotoPath)
+                            if (imageFile.exists()) {
+                                val fis = FileInputStream(imageFile)
+                                run.addPicture(
+                                    fis,
+                                    Document.PICTURE_TYPE_JPEG,
+                                    imageFile.name,
+                                    Units.toEMU(400.0),
+                                    Units.toEMU(300.0)
+                                )
+                                fis.close()
+                            }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    }
                 }
 
                 doc.createParagraph()
@@ -136,6 +181,7 @@ object WordGenerator {
                             doc.write(it)
                         }
 
+                        doc.close()
                         onFinish(file)
                     }
             }

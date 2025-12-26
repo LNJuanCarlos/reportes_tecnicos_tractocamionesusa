@@ -10,6 +10,7 @@ data class DatosGenerales(
     val motorSerie: String = "",
     val placa: String = "",
     val vin: String = "",
+    val fotos: List<String>? = null,
     val km: String = "",
     val hr: String = ""
 )
