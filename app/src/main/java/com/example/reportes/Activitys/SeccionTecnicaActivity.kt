@@ -230,12 +230,13 @@ class SeccionTecnicaActivity : AppCompatActivity() {
             }
             .addOnSuccessListener { downloadUri ->
 
-                if (pos in items.indices) {
-                    items[pos].fotoUrl = downloadUri.toString()
-
-                    Log.d("STORAGE", "URL GUARDADA = ${items[pos].fotoUrl}")
-
-                    adapter.notifyItemChanged(pos)
+                if (pos == 0) { // si este item corresponde a Placa/Frontal
+                    val db = FirebaseFirestore.getInstance()
+                    db.collection("evaluaciones")
+                        .document(evaluacionId)
+                        .collection("datosGenerales")
+                        .document("info")
+                        .update("placaFrontalUrl", downloadUri.toString())
                 }
             }
             .addOnFailureListener {

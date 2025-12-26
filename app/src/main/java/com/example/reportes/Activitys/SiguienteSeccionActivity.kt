@@ -45,7 +45,7 @@ class SiguienteSeccionActivity : AppCompatActivity() {
         val btnGenerarWord = findViewById<Button>(R.id.btnGenerarWord)
 
         btnGenerarWord.setOnClickListener {
-            WordGenerator.generarWordCompleto(
+            WordGenerator.generarWordCompletoPruebaFoto(
                 this,
                 evaluacionId
             ) { file ->
@@ -61,35 +61,6 @@ class SiguienteSeccionActivity : AppCompatActivity() {
         rv.adapter = adapter
 
         cargarEstadoSecciones(btnFinalizar)
-    }
-
-    private fun generarWordDesdeHome() {
-
-        //val evaluacionId = /* el ID actual que estás usando */
-
-        val db = FirebaseFirestore.getInstance()
-
-        db.collection("evaluaciones")
-            .document(evaluacionId)
-            .collection("datosGenerales")
-            .document("info")
-            .get()
-            .addOnSuccessListener { doc ->
-
-                if (!doc.exists()) {
-                    Toast.makeText(this, "No hay datos generales", Toast.LENGTH_SHORT).show()
-                    return@addOnSuccessListener
-                }
-
-                val datos = doc.toObject(DatosGenerales::class.java)
-                    ?: return@addOnSuccessListener
-
-                val file = WordGenerator.generarWord(this, datos)
-                WordGenerator.abrirWord(this, file)
-            }
-            .addOnFailureListener {
-                Toast.makeText(this, "Error generando Word", Toast.LENGTH_LONG).show()
-            }
     }
 
     private fun abrirSeccion(seccion: SeccionHome) {

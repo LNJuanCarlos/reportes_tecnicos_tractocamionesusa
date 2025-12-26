@@ -12,5 +12,7 @@ data class DatosGenerales(
     val vin: String = "",
     val fotos: List<String>? = null,
     val km: String = "",
-    val hr: String = ""
+    val hr: String = "",
+    val placaFrontalUrl: String? = null,
+    val motorUrl: String? = null
 )
