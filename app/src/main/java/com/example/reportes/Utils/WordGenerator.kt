@@ -35,7 +35,9 @@ object WordGenerator {
         val assetManager = context.assets
         val inputStream = assetManager.open("plantilla_reporte_tecnico.docx")
         val templateFile = File(context.filesDir, "plantilla_temp.docx")
-        inputStream.use { input -> templateFile.outputStream().use { output -> input.copyTo(output) } }
+        inputStream.use { input ->
+            templateFile.outputStream().use { output -> input.copyTo(output) }
+        }
         val doc = XWPFDocument(FileInputStream(templateFile))
 
         // Obtener datos generales
@@ -62,10 +64,13 @@ object WordGenerator {
                     // Reemplazar texto en párrafos
                     for (p in doc.paragraphs) {
                         var textoCompleto = p.runs.joinToString("") { it.text() }
+
+                        //  SALTAR si es placeholder de imagen
+                        if (textoCompleto.contains("{{foto_")) continue
+
                         for ((placeholder, valor) in datosMap) {
                             textoCompleto = textoCompleto.replace(placeholder, valor)
                         }
-                        // Limpiar runs y poner texto final
                         for (run in p.runs) run.setText("", 0)
                         p.createRun().setText(textoCompleto)
                     }
@@ -76,6 +81,10 @@ object WordGenerator {
                             for (cell in row.tableCells) {
                                 for (p in cell.paragraphs) {
                                     var textoCompleto = p.runs.joinToString("") { it.text() }
+
+                                    //  SALTAR placeholders de imagen
+                                    if (textoCompleto.contains("{{foto_")) continue
+
                                     for ((placeholder, valor) in datosMap) {
                                         textoCompleto = textoCompleto.replace(placeholder, valor)
                                     }
@@ -95,29 +104,88 @@ object WordGenerator {
                         storage.getReferenceFromUrl(urlFoto).getFile(tempFile)
                             .addOnSuccessListener {
                                 try {
-                                    insertarFotoProporcionada(doc, "{{foto_placa}}", tempFile, 280.0, 180.0)
+                                    insertarFotoProporcionada(
+                                        doc,
+                                        "{{foto_placa}}",
+                                        tempFile,
+                                        280.0,
+                                        180.0
+                                    )
                                     tempFile.delete()
 
                                     // Guardar documento final
-                                    val file = File(
-                                        context.getExternalFilesDir(null),
-                                        "Reporte_${System.currentTimeMillis()}.docx"
-                                    )
-                                    FileOutputStream(file).use { doc.write(it) }
-                                    doc.close()
-                                    onFinish(file)
+                                    // ------------------------------
+                                    // FOTO VIN {{foto_vin}}
+                                    // ------------------------------
+                                    val vinFotoUrl = datos.vinFotoUrl
+
+                                    if (!vinFotoUrl.isNullOrEmpty()) {
+                                        val tempVinFile = File.createTempFile(
+                                            "vin_temp",
+                                            ".jpg",
+                                            context.cacheDir
+                                        )
+
+                                        storage.getReferenceFromUrl(vinFotoUrl)
+                                            .getFile(tempVinFile)
+                                            .addOnSuccessListener {
+
+                                                insertarFotoProporcionada(
+                                                    doc,
+                                                    "{{foto_vin}}",
+                                                    tempVinFile,
+                                                    280.0,
+                                                    180.0
+                                                )
+
+                                                tempVinFile.delete()
+
+                                                val file = File(
+                                                    context.getExternalFilesDir(null),
+                                                    "Reporte_${System.currentTimeMillis()}.docx"
+                                                )
+                                                FileOutputStream(file).use { doc.write(it) }
+                                                doc.close()
+                                                onFinish(file)
+                                            }
+                                            .addOnFailureListener {
+                                                // aunque falle la foto, igual guardamos el Word
+                                                val file = File(
+                                                    context.getExternalFilesDir(null),
+                                                    "Reporte_${System.currentTimeMillis()}.docx"
+                                                )
+                                                FileOutputStream(file).use { doc.write(it) }
+                                                doc.close()
+                                                onFinish(file)
+                                            }
+                                    } else {
+                                        // no hay foto VIN, guardamos igual
+                                        val file = File(
+                                            context.getExternalFilesDir(null),
+                                            "Reporte_${System.currentTimeMillis()}.docx"
+                                        )
+                                        FileOutputStream(file).use { doc.write(it) }
+                                        doc.close()
+                                        onFinish(file)
+                                    }
 
                                 } catch (e: Exception) {
                                     e.printStackTrace()
-                                    Toast.makeText(context, "Error insertando foto", Toast.LENGTH_LONG).show()
+                                    Toast.makeText(
+                                        context,
+                                        "Error insertando foto",
+                                        Toast.LENGTH_LONG
+                                    ).show()
                                 }
                             }
                             .addOnFailureListener {
                                 it.printStackTrace()
-                                Toast.makeText(context, "Error descargando foto", Toast.LENGTH_LONG).show()
+                                Toast.makeText(context, "Error descargando foto", Toast.LENGTH_LONG)
+                                    .show()
                             }
                     } else {
-                        Toast.makeText(context, "No hay URL de foto para prueba", Toast.LENGTH_LONG).show()
+                        Toast.makeText(context, "No hay URL de foto para prueba", Toast.LENGTH_LONG)
+                            .show()
                     }
                 }
             }
@@ -196,6 +264,59 @@ object WordGenerator {
             }
         }
     }
+
+    private fun insertarFotoDesdeSeccion(
+        doc: XWPFDocument,
+        placeholder: String,
+        evaluacionId: String,
+        seccionId: String,
+        context: Context,
+        db: FirebaseFirestore,
+        storage: FirebaseStorage,
+        onFinish: () -> Unit
+    ) {
+        db.collection("evaluaciones")
+            .document(evaluacionId)
+            .collection("secciones")
+            .document(seccionId)
+            .get()
+            .addOnSuccessListener { docSeccion ->
+
+                val items = docSeccion.get("items") as? List<Map<String, Any>> ?: emptyList()
+
+                val itemConFoto = items.firstOrNull {
+                    it["fotoUrl"]?.toString()?.isNotBlank() == true
+                }
+
+                val fotoUrl = itemConFoto?.get("fotoUrl")?.toString()
+
+                if (!fotoUrl.isNullOrEmpty()) {
+
+                    val tempFile = File.createTempFile("vin_temp", ".jpg", context.cacheDir)
+                    storage.getReferenceFromUrl(fotoUrl)
+                        .getFile(tempFile)
+                        .addOnSuccessListener {
+
+                            insertarFotoProporcionada(
+                                doc,
+                                placeholder,
+                                tempFile,
+                                220.0,
+                                140.0
+                            )
+
+                            tempFile.delete()
+                            onFinish()
+                        }
+                        .addOnFailureListener { onFinish() }
+
+                } else {
+                    onFinish()
+                }
+            }
+            .addOnFailureListener { onFinish() }
+    }
+
 
     fun abrirWord(context: Context, file: File) {
 

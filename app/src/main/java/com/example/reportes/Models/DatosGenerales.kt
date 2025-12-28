@@ -14,5 +14,6 @@ data class DatosGenerales(
     val km: String = "",
     val hr: String = "",
     val placaFrontalUrl: String? = null,
+    val vinFotoUrl: String? = null,
     val motorUrl: String? = null
 )

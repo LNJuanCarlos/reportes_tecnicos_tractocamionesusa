@@ -216,6 +216,7 @@ class SeccionTecnicaActivity : AppCompatActivity() {
     }
 
     private fun subirFotoFirebase(uri: Uri, pos: Int) {
+
         val storageRef = FirebaseStorage.getInstance().reference
         val ref = storageRef.child(
             "evaluaciones/$evaluacionId/$seccionId/foto_${System.currentTimeMillis()}.jpg"
@@ -230,14 +231,26 @@ class SeccionTecnicaActivity : AppCompatActivity() {
             }
             .addOnSuccessListener { downloadUri ->
 
-                if (pos == 0) { // si este item corresponde a Placa/Frontal
-                    val db = FirebaseFirestore.getInstance()
-                    db.collection("evaluaciones")
-                        .document(evaluacionId)
-                        .collection("datosGenerales")
-                        .document("info")
-                        .update("placaFrontalUrl", downloadUri.toString())
+                val db = FirebaseFirestore.getInstance()
+                val infoRef = db.collection("evaluaciones")
+                    .document(evaluacionId)
+                    .collection("datosGenerales")
+                    .document("info")
+
+                when (seccionId) {
+                    "placa" -> {
+                        infoRef.update(
+                            mapOf(
+                                "placaFrontalUrl" to downloadUri.toString(),
+                                "vinFotoUrl" to downloadUri.toString() //  ESTA ERA LA CLAVE
+                            )
+                        )
+                    }
                 }
+
+                // Guardar también en el item (por si luego se vuelve a cargar)
+                items[pos].fotoUrl = downloadUri.toString()
+                adapter.notifyItemChanged(pos)
             }
             .addOnFailureListener {
                 Toast.makeText(this, "Error subiendo foto", Toast.LENGTH_SHORT).show()
