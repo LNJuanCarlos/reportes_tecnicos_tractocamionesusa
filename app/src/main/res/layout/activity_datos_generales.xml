@@ -104,11 +104,47 @@
 
         </LinearLayout>
 
+        <!-- PREVIEW PLACA -->
+        <ImageView
+            android:id="@+id/imgPreviewPlaca"
+            android:layout_width="match_parent"
+            android:layout_height="160dp"
+            android:scaleType="centerCrop"
+            android:visibility="gone"
+            android:background="#E0E0E0"
+            android:layout_marginBottom="12dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="8dp">
+
         <Button
             android:id="@+id/btnFotoFrontal"
-            android:text="📷 Foto Frontal"
+            android:text="📷 Foto Frontal Camión"
+            android:layout_width="200dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="8dp"/>
+
+        <Button
+            android:id="@+id/btnVerFrontal"
+            android:text="VER"
+            android:layout_width="76dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="6dp"/>
+
+    </LinearLayout>
+
+        <!-- PREVIEW FRONTAL -->
+        <ImageView
+            android:id="@+id/imgPreviewFrontal"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="160dp"
+            android:scaleType="centerCrop"
+            android:visibility="gone"
+            android:background="#E0E0E0"
+            android:layout_marginBottom="12dp"/>
 
         <EditText
             android:id="@+id/etanio"
@@ -171,6 +207,16 @@
                 android:layout_marginStart="6dp"/>
 
         </LinearLayout>
+
+        <!-- PREVIEW KM -->
+        <ImageView
+            android:id="@+id/imgPreviewKm"
+            android:layout_width="match_parent"
+            android:layout_height="160dp"
+            android:scaleType="centerCrop"
+            android:visibility="gone"
+            android:background="#E0E0E0"
+            android:layout_marginBottom="12dp"/>
 
         <Button
             android:id="@+id/btnGuardar"

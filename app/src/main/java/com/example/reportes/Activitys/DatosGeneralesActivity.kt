@@ -5,6 +5,8 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
@@ -23,9 +25,14 @@ import com.bumptech.glide.Glide
 import com.example.reportes.Models.DatosGenerales
 import com.example.reportes.Models.SeccionTecnicaFirestore
 import com.example.reportes.R
+import com.example.reportes.Utils.TipoFoto
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import com.google.firebase.storage.FirebaseStorage
 import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import java.util.UUID
 
 class DatosGeneralesActivity : AppCompatActivity() {
@@ -43,43 +50,73 @@ class DatosGeneralesActivity : AppCompatActivity() {
     private lateinit var etmotorModelo: EditText
     private lateinit var etmotorSerie: EditText
 
-    private lateinit var takePictureLauncher: ActivityResultLauncher<Uri>
-    private var photoUri: Uri? = null
-    private var tipoFotoActual: String = ""
-    private lateinit var btnVerVin: Button
-    private lateinit var imgPreviewVin: ImageView
-    private var fotoVinLocalPath: String? = null
+
+    private var tipoFotoActual: TipoFoto? = null
+    private var fotoUri: Uri? = null
+
+    private val fotoUrls = mutableMapOf<TipoFoto, String>()
+    private val btnVerMap = mutableMapOf<TipoFoto, Button>()
+    private val imgPreviewMap = mutableMapOf<TipoFoto, ImageView>()
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_datos_generales)
 
         findViewById<Button>(R.id.btnFotoPlaca).setOnClickListener {
-            tomarFoto("placa")
+            tomarFoto(TipoFoto.PLACA)
         }
 
         findViewById<Button>(R.id.btnFotoFrontal).setOnClickListener {
-            tomarFoto("frontal")
+            tomarFoto(TipoFoto.FRONTAL)
         }
 
         findViewById<Button>(R.id.btnFotoVin).setOnClickListener {
-            tomarFoto("vin")
+            tomarFoto(TipoFoto.VIN)
         }
 
         findViewById<Button>(R.id.btnFotoKm).setOnClickListener {
-            tomarFoto("km")
+            tomarFoto(TipoFoto.KM)
         }
 
-        btnVerVin = findViewById(R.id.btnVerVin)
-        imgPreviewVin = findViewById(R.id.imgPreviewVin)
+        val btnVerVin = findViewById<Button>(R.id.btnVerVin)
+        val imgPreviewVin = findViewById<ImageView>(R.id.imgPreviewVin)
 
-        btnVerVin.setOnClickListener {
-            togglePreview(
-                btnVerVin,
-                imgPreviewVin,
-                fotoVinLocalPath   // String que ya guardas al tomar la foto
-            )
+        val btnVerPlaca = findViewById<Button>(R.id.btnVerPlaca)
+        val imgPreviewPlaca = findViewById<ImageView>(R.id.imgPreviewPlaca)
+
+        val btnVerFrontal = findViewById<Button>(R.id.btnVerFrontal)
+        val imgPreviewFrontal = findViewById<ImageView>(R.id.imgPreviewFrontal)
+
+        val btnVerKm = findViewById<Button>(R.id.btnVerKm)
+        val imgPreviewKm = findViewById<ImageView>(R.id.imgPreviewKm)
+
+        btnVerMap[TipoFoto.VIN] = btnVerVin
+        imgPreviewMap[TipoFoto.VIN] = imgPreviewVin
+
+        btnVerMap[TipoFoto.PLACA] = btnVerPlaca
+        imgPreviewMap[TipoFoto.PLACA] = imgPreviewPlaca
+
+        btnVerMap[TipoFoto.FRONTAL] = btnVerFrontal
+        imgPreviewMap[TipoFoto.FRONTAL] = imgPreviewFrontal
+
+        btnVerMap[TipoFoto.KM] = btnVerKm
+        imgPreviewMap[TipoFoto.KM] = imgPreviewKm
+
+        btnVerVin.isEnabled = false
+        btnVerVin.alpha = 0.5f
+
+        listOf(btnVerPlaca, btnVerFrontal, btnVerKm).forEach {
+            it.isEnabled = false
+            it.alpha = 0.5f
         }
+
+        btnVerVin.setOnClickListener {togglePreview(TipoFoto.VIN) }
+        btnVerPlaca.setOnClickListener { togglePreview(TipoFoto.PLACA) }
+        btnVerFrontal.setOnClickListener { togglePreview(TipoFoto.FRONTAL) }
+        btnVerKm.setOnClickListener { togglePreview(TipoFoto.KM) }
+
 
 
         evaluacionId = intent.getStringExtra("EVALUACION_ID")
@@ -106,6 +143,7 @@ class DatosGeneralesActivity : AppCompatActivity() {
          val btnGuardar = findViewById<Button>(R.id.btnGuardar)
 
         cargarDatosGenerales()
+        cargarFotos()
 
         btnGuardar.setOnClickListener {
 
@@ -120,52 +158,95 @@ class DatosGeneralesActivity : AppCompatActivity() {
                 anio = etanio.text.toString(),
                 cajaCambios = etcajaCambios.text.toString(),
                 motorModelo = etmotorModelo.text.toString(),
-                motorSerie = etmotorSerie.text.toString()
+                motorSerie = etmotorSerie.text.toString(),
+                vinFotoUrl = fotoUrls[TipoFoto.VIN]
             )
 
             guardarDatosGenerales(datos)
         }
 
-        takePictureLauncher =
-            registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
-                if (success && photoUri != null) {
-                    subirFotoIdentificacion(photoUri!!, tipoFotoActual)
+    }
+
+    private fun cargarFotos() {
+        FirebaseFirestore.getInstance()
+            .collection("evaluaciones")
+            .document(evaluacionId)
+            .collection("datosGenerales")
+            .document("info")
+            .get()
+            .addOnSuccessListener { doc ->
+
+                TipoFoto.values().forEach { tipo ->
+                    val campo = "${tipo.name.lowercase()}FotoUrl"
+                    val url = doc.getString(campo)
+                    if (!url.isNullOrEmpty()) {
+                        fotoUrls[tipo] = url
+                        habilitarVer(tipo)
+                    }
                 }
             }
-
     }
 
-    private fun togglePreview(
-        btn: Button,
-        imageView: ImageView,
-        fotoPath: String?
-    ) {
-        if (imageView.visibility == View.GONE) {
-
-            if (fotoPath.isNullOrEmpty()) {
-                Toast.makeText(this, "No hay foto para mostrar", Toast.LENGTH_SHORT).show()
-                return
+    private fun cargarFotoVin() {
+        FirebaseFirestore.getInstance()
+            .collection("evaluaciones")
+            .document(evaluacionId)
+            .collection("datosGenerales")
+            .document("info")
+            .get()
+            .addOnSuccessListener { doc ->
+                val url = doc.getString("vinFotoUrl")
+                if (!url.isNullOrEmpty()) {
+                    fotoUrls[TipoFoto.VIN] = url
+                    habilitarVer(TipoFoto.VIN)
+                }
             }
+    }
 
-            imageView.visibility = View.VISIBLE
-            btn.text = "X"
+    private val takePictureLauncher =
+        registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+            if (success && fotoUri != null && tipoFotoActual != null) {
+                subirFotoFirebase(tipoFotoActual!!, fotoUri!!)
+            } else {
+                Toast.makeText(this, "No se pudo tomar la foto", Toast.LENGTH_SHORT).show()
+            }
+        }
 
-            Glide.with(this)
-                .load(File(fotoPath))
-                .centerCrop()
-                .into(imageView)
+    private fun togglePreview(tipo: TipoFoto) {
 
-        } else {
-            imageView.visibility = View.GONE
+        val btn = btnVerMap[tipo] ?: return
+        val img = imgPreviewMap[tipo] ?: return
+        val url = fotoUrls[tipo]
+
+        if (img.visibility == View.VISIBLE) {
+            img.visibility = View.GONE
             btn.text = "VER"
+            return
+        }
+
+        if (url.isNullOrEmpty()) {
+            Toast.makeText(this, "No hay foto para mostrar", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        img.visibility = View.VISIBLE
+        btn.text = "X"
+
+        Glide.with(this)
+            .load(url)
+            .into(img)
+    }
+
+    private fun habilitarVer(tipo: TipoFoto) {
+        btnVerMap[tipo]?.apply {
+            isEnabled = true
+            alpha = 1f
         }
     }
+    private fun subirFotoFirebase(tipo: TipoFoto, uri: Uri) {
 
-    private fun subirFotoIdentificacion(uri: Uri, tipo: String) {
-
-        val storageRef = FirebaseStorage.getInstance().reference
-        val ref = storageRef.child(
-            "evaluaciones/$evaluacionId/identificacion/$tipo.jpg"
+        val ref = FirebaseStorage.getInstance().reference.child(
+            "evaluaciones/$evaluacionId/datosGenerales/${tipo.name.lowercase()}.jpg"
         )
 
         ref.putFile(uri)
@@ -175,57 +256,46 @@ class DatosGeneralesActivity : AppCompatActivity() {
             }
             .addOnSuccessListener { downloadUri ->
 
-                val campo = when (tipo) {
-                    "placa" -> "fotos.placaUrl"
-                    "frontal" -> "fotos.frontalUrl"
-                    "vin" -> "fotos.vinUrl"
-                    "km" -> "fotos.kmUrl"
-                    else -> return@addOnSuccessListener
-                }
+                fotoUrls[tipo] = downloadUri.toString()
 
                 FirebaseFirestore.getInstance()
                     .collection("evaluaciones")
                     .document(evaluacionId)
                     .collection("datosGenerales")
                     .document("info")
-                    .update(campo, downloadUri.toString())
+                    .set(
+                        mapOf("${tipo.name.lowercase()}FotoUrl" to downloadUri.toString()),
+                        SetOptions.merge()
+                    )
 
-                Toast.makeText(this, "Foto $tipo guardada", Toast.LENGTH_SHORT).show()
+                habilitarVer(tipo)
+
+                Toast.makeText(this, "Foto ${tipo.name} guardada", Toast.LENGTH_SHORT).show()
             }
             .addOnFailureListener {
-                Toast.makeText(this, "Error subiendo foto", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "Error subiendo foto ${tipo.name}", Toast.LENGTH_LONG).show()
             }
     }
 
-    private fun tomarFoto(tipo: String) {
+    private fun tomarFoto(tipo: TipoFoto) {
         tipoFotoActual = tipo
 
-        if (ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.CAMERA
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.CAMERA),
-                2001
-            )
-            return
-        }
+        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+        val storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
 
         val file = File.createTempFile(
-            "foto_${tipo}_${System.currentTimeMillis()}",
+            "${tipo.name}_$timeStamp",
             ".jpg",
-            cacheDir
+            storageDir
         )
 
-        photoUri = FileProvider.getUriForFile(
+        fotoUri = FileProvider.getUriForFile(
             this,
-            "${packageName}.provider",
+            "${packageName}.fileprovider",
             file
         )
 
-        takePictureLauncher.launch(photoUri!!)
+        takePictureLauncher.launch(fotoUri!!)
     }
 
 
@@ -267,7 +337,7 @@ class DatosGeneralesActivity : AppCompatActivity() {
             .document(evaluacionId)
             .collection("datosGenerales")
             .document("info")
-            .set(datos)
+            .set(datos, SetOptions.merge())
             .addOnSuccessListener {
 
                 // 2 Marcar sección como completada
