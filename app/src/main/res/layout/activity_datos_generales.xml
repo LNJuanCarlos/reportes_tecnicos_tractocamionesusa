@@ -28,11 +28,44 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
-        <EditText
-            android:id="@+id/etVin"
-            android:hint="VIN"
+        <!-- VIN + FOTO + VER -->
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="4dp">
+
+            <EditText
+                android:id="@+id/etVin"
+                android:hint="VIN"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"/>
+
+            <Button
+                android:id="@+id/btnFotoVin"
+                android:text="📷"
+                android:layout_width="76dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="6dp"/>
+
+            <Button
+                android:id="@+id/btnVerVin"
+                android:text="VER"
+                android:layout_width="76dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="6dp"/>
+        </LinearLayout>
+
+        <!-- PREVIEW VIN -->
+        <ImageView
+            android:id="@+id/imgPreviewVin"
+            android:layout_width="match_parent"
+            android:layout_height="160dp"
+            android:scaleType="centerCrop"
+            android:visibility="gone"
+            android:background="#E0E0E0"
+            android:layout_marginBottom="12dp"/>
 
 
         <EditText
@@ -41,9 +74,39 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
-        <EditText
-            android:id="@+id/etPlaca"
-            android:hint="Placa"
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+
+            <EditText
+                android:id="@+id/etPlaca"
+                android:hint="Placa"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:inputType="textCapCharacters"/>
+
+            <Button
+                android:id="@+id/btnFotoPlaca"
+                android:text="📷"
+                android:layout_width="76dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="8dp"/>
+
+            <Button
+                android:id="@+id/btnVerPlaca"
+                android:text="VER"
+                android:layout_width="76dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="6dp"/>
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btnFotoFrontal"
+            android:text="📷 Foto Frontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
@@ -71,12 +134,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
-        <EditText
-            android:id="@+id/etKm"
-            android:hint="Kilometraje"
-            android:inputType="number"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
 
         <EditText
             android:id="@+id/etHr"
@@ -84,6 +141,36 @@
             android:inputType="number"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+
+            <EditText
+                android:id="@+id/etKm"
+                android:hint="Kilometraje"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:inputType="number"/>
+
+            <Button
+                android:id="@+id/btnFotoKm"
+                android:text="📷"
+                android:layout_width="76dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="8dp"/>
+
+            <Button
+                android:id="@+id/btnVerKm"
+                android:text="VER"
+                android:layout_width="76dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="6dp"/>
+
+        </LinearLayout>
 
         <Button
             android:id="@+id/btnGuardar"
