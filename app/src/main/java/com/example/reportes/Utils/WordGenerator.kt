@@ -98,7 +98,7 @@ object WordGenerator {
                     // ------------------------------
                     // FOTO DE PLACA {{foto_placa}}
                     // ------------------------------
-                    val urlFoto = datos.placaFrontalUrl
+                    val urlFoto = datos.placa
                     if (!urlFoto.isNullOrEmpty()) {
                         val tempFile = File.createTempFile("foto_temp", ".jpg", context.cacheDir)
                         storage.getReferenceFromUrl(urlFoto).getFile(tempFile)

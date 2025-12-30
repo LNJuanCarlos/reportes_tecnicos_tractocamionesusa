@@ -10,10 +10,13 @@ data class DatosGenerales(
     val motorSerie: String = "",
     val placa: String = "",
     val vin: String = "",
-    val fotos: List<String>? = null,
+    val frontal: String = "VISTA FRONTAL DE LA UNIDAD",
     val km: String = "",
     val hr: String = "",
-    val placaFrontalUrl: String? = null,
+    val motorUrl: String? = null,
+
     val vinFotoUrl: String? = null,
-    val motorUrl: String? = null
+    val placaFotoUrl: String? = null,
+    val frontalFotoUrl: String? = null,
+    val kmFotoUrl: String? = null
 )

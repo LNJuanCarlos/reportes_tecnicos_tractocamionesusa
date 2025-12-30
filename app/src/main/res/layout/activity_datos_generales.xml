@@ -120,10 +120,18 @@
         android:orientation="horizontal"
         android:layout_marginBottom="8dp">
 
+        <EditText
+            android:id="@+id/etFrontal"
+            android:hint="Comentario (Opcional)"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:inputType="textCapCharacters"/>
+
         <Button
             android:id="@+id/btnFotoFrontal"
-            android:text="📷 Foto Frontal Camión"
-            android:layout_width="200dp"
+            android:text="📷"
+            android:layout_width="76dp"
             android:layout_height="48dp"
             android:layout_marginStart="8dp"/>
 

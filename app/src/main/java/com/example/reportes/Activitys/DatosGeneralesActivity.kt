@@ -42,6 +42,7 @@ class DatosGeneralesActivity : AppCompatActivity() {
     private lateinit var etMarca: EditText
     private lateinit var etPlaca: EditText
     private lateinit var etVin: EditText
+    private lateinit var eTFrontal: EditText
     private lateinit var etKm: EditText
     private lateinit var etHr: EditText
     private lateinit var etmodelo:EditText
@@ -133,6 +134,7 @@ class DatosGeneralesActivity : AppCompatActivity() {
          etPlaca = findViewById(R.id.etPlaca)
          etVin = findViewById(R.id.etVin)
          etKm = findViewById(R.id.etKm)
+         eTFrontal = findViewById(R.id.etFrontal)
          etHr = findViewById(R.id.etHr)
          etmodelo = findViewById(R.id.etModelo)
          etanio = findViewById(R.id.etanio)
@@ -147,11 +149,16 @@ class DatosGeneralesActivity : AppCompatActivity() {
 
         btnGuardar.setOnClickListener {
 
+            val frontalTexto = eTFrontal.text.toString().trim()
+
             val datos = DatosGenerales(
                 cliente = etCliente.text.toString(),
                 marca = etMarca.text.toString(),
                 placa = etPlaca.text.toString(),
                 vin = etVin.text.toString(),
+                frontal = if (frontalTexto.isEmpty())
+                    "VISTA FRONTAL DE LA UNIDAD"
+                else frontalTexto,
                 km = etKm.text.toString(),
                 hr = etHr.text.toString(),
                 modelo = etmodelo.text.toString(),
@@ -159,13 +166,24 @@ class DatosGeneralesActivity : AppCompatActivity() {
                 cajaCambios = etcajaCambios.text.toString(),
                 motorModelo = etmotorModelo.text.toString(),
                 motorSerie = etmotorSerie.text.toString(),
-                vinFotoUrl = fotoUrls[TipoFoto.VIN]
+
+                vinFotoUrl = fotoUrls[TipoFoto.VIN],
+                placaFotoUrl = fotoUrls[TipoFoto.PLACA],
+                frontalFotoUrl = fotoUrls[TipoFoto.FRONTAL],
+                kmFotoUrl = fotoUrls[TipoFoto.KM]
             )
 
             guardarDatosGenerales(datos)
         }
 
     }
+
+    private val fotoCampoFirestore = mapOf(
+        TipoFoto.VIN to "vinFotoUrl",
+        TipoFoto.PLACA to "placaFotoUrl",
+        TipoFoto.FRONTAL to "frontalFotoUrl",
+        TipoFoto.KM to "kmFotoUrl"
+    )
 
     private fun cargarFotos() {
         FirebaseFirestore.getInstance()
@@ -176,29 +194,12 @@ class DatosGeneralesActivity : AppCompatActivity() {
             .get()
             .addOnSuccessListener { doc ->
 
-                TipoFoto.values().forEach { tipo ->
-                    val campo = "${tipo.name.lowercase()}FotoUrl"
+                fotoCampoFirestore.forEach { (tipo, campo) ->
                     val url = doc.getString(campo)
                     if (!url.isNullOrEmpty()) {
                         fotoUrls[tipo] = url
                         habilitarVer(tipo)
                     }
-                }
-            }
-    }
-
-    private fun cargarFotoVin() {
-        FirebaseFirestore.getInstance()
-            .collection("evaluaciones")
-            .document(evaluacionId)
-            .collection("datosGenerales")
-            .document("info")
-            .get()
-            .addOnSuccessListener { doc ->
-                val url = doc.getString("vinFotoUrl")
-                if (!url.isNullOrEmpty()) {
-                    fotoUrls[TipoFoto.VIN] = url
-                    habilitarVer(TipoFoto.VIN)
                 }
             }
     }
@@ -257,23 +258,16 @@ class DatosGeneralesActivity : AppCompatActivity() {
             .addOnSuccessListener { downloadUri ->
 
                 fotoUrls[tipo] = downloadUri.toString()
-
-                FirebaseFirestore.getInstance()
-                    .collection("evaluaciones")
-                    .document(evaluacionId)
-                    .collection("datosGenerales")
-                    .document("info")
-                    .set(
-                        mapOf("${tipo.name.lowercase()}FotoUrl" to downloadUri.toString()),
-                        SetOptions.merge()
-                    )
-
                 habilitarVer(tipo)
 
-                Toast.makeText(this, "Foto ${tipo.name} guardada", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this,
+                    "Foto ${tipo.name} cargada",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
             .addOnFailureListener {
-                Toast.makeText(this, "Error subiendo foto ${tipo.name}", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "Error subiendo ${tipo.name}", Toast.LENGTH_LONG).show()
             }
     }
 
@@ -314,6 +308,7 @@ class DatosGeneralesActivity : AppCompatActivity() {
                     etMarca.setText(doc.getString("marca"))
                     etPlaca.setText(doc.getString("placa"))
                     etVin.setText(doc.getString("vin"))
+                    eTFrontal.setText(doc.getString("frontal"))
                     etKm.setText(doc.getString("km"))
                     etHr.setText(doc.getString("hr"))
                     etmodelo.setText(doc.getString("modelo"))
