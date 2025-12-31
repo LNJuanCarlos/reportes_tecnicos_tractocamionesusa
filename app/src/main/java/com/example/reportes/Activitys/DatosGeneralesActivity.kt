@@ -1,11 +1,13 @@
 package com.example.reportes.Activitys
 
 import android.Manifest
+import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
+import android.provider.MediaStore
 import android.util.Log
 import android.view.View
 import android.widget.Button
@@ -37,6 +39,9 @@ import java.util.UUID
 
 class DatosGeneralesActivity : AppCompatActivity() {
 
+    companion object {
+        private const val REQUEST_FOTO = 1001
+    }
     private lateinit var evaluacionId: String
     private lateinit var etCliente: EditText
     private lateinit var etMarca: EditText
@@ -50,9 +55,9 @@ class DatosGeneralesActivity : AppCompatActivity() {
     private lateinit var etcajaCambios: EditText
     private lateinit var etmotorModelo: EditText
     private lateinit var etmotorSerie: EditText
+    private lateinit var currentPhotoFile: File
 
-
-    private var tipoFotoActual: TipoFoto? = null
+    private lateinit var tipoFotoActual: TipoFoto
     private var fotoUri: Uri? = null
 
     private val fotoUrls = mutableMapOf<TipoFoto, String>()
@@ -81,6 +86,14 @@ class DatosGeneralesActivity : AppCompatActivity() {
             tomarFoto(TipoFoto.KM)
         }
 
+        findViewById<Button>(R.id.btnFotoCaja).setOnClickListener {
+            tomarFoto(TipoFoto.CAJA_CAMBIOS)
+        }
+
+        findViewById<Button>(R.id.btnFotoMotor).setOnClickListener {
+            tomarFoto(TipoFoto.MOTOR)
+        }
+
         val btnVerVin = findViewById<Button>(R.id.btnVerVin)
         val imgPreviewVin = findViewById<ImageView>(R.id.imgPreviewVin)
 
@@ -93,6 +106,12 @@ class DatosGeneralesActivity : AppCompatActivity() {
         val btnVerKm = findViewById<Button>(R.id.btnVerKm)
         val imgPreviewKm = findViewById<ImageView>(R.id.imgPreviewKm)
 
+        val btnVerCaja = findViewById<Button>(R.id.btnVerCaja)
+        val imgPreviewCaja = findViewById<ImageView>(R.id.imgPreviewCaja)
+
+        val btnVerMotor = findViewById<Button>(R.id.btnVerMotor)
+        val imgPreviewMotor = findViewById<ImageView>(R.id.imgPreviewMotor)
+
         btnVerMap[TipoFoto.VIN] = btnVerVin
         imgPreviewMap[TipoFoto.VIN] = imgPreviewVin
 
@@ -104,6 +123,12 @@ class DatosGeneralesActivity : AppCompatActivity() {
 
         btnVerMap[TipoFoto.KM] = btnVerKm
         imgPreviewMap[TipoFoto.KM] = imgPreviewKm
+
+        btnVerMap[TipoFoto.CAJA_CAMBIOS] = btnVerCaja
+        imgPreviewMap[TipoFoto.CAJA_CAMBIOS] = imgPreviewCaja
+
+        btnVerMap[TipoFoto.MOTOR] = btnVerMotor
+        imgPreviewMap[TipoFoto.MOTOR] = imgPreviewMotor
 
         btnVerVin.isEnabled = false
         btnVerVin.alpha = 0.5f
@@ -170,7 +195,9 @@ class DatosGeneralesActivity : AppCompatActivity() {
                 vinFotoUrl = fotoUrls[TipoFoto.VIN],
                 placaFotoUrl = fotoUrls[TipoFoto.PLACA],
                 frontalFotoUrl = fotoUrls[TipoFoto.FRONTAL],
-                kmFotoUrl = fotoUrls[TipoFoto.KM]
+                kmFotoUrl = fotoUrls[TipoFoto.KM],
+                cajaFotoUrl = fotoUrls[TipoFoto.CAJA_CAMBIOS],
+                motorFotoUrl = fotoUrls[TipoFoto.MOTOR]
             )
 
             guardarDatosGenerales(datos)
@@ -182,7 +209,9 @@ class DatosGeneralesActivity : AppCompatActivity() {
         TipoFoto.VIN to "vinFotoUrl",
         TipoFoto.PLACA to "placaFotoUrl",
         TipoFoto.FRONTAL to "frontalFotoUrl",
-        TipoFoto.KM to "kmFotoUrl"
+        TipoFoto.KM to "kmFotoUrl",
+        TipoFoto.CAJA_CAMBIOS to "cajaFotoUrl",
+        TipoFoto.MOTOR to "motorFotoUrl"
     )
 
     private fun cargarFotos() {
@@ -206,12 +235,13 @@ class DatosGeneralesActivity : AppCompatActivity() {
 
     private val takePictureLauncher =
         registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
-            if (success && fotoUri != null && tipoFotoActual != null) {
-                subirFotoFirebase(tipoFotoActual!!, fotoUri!!)
+            if (success) {
+                subirFotoFirebase(tipoFotoActual, fotoUri!!)
             } else {
                 Toast.makeText(this, "No se pudo tomar la foto", Toast.LENGTH_SHORT).show()
             }
         }
+
 
     private fun togglePreview(tipo: TipoFoto) {
 
@@ -271,17 +301,11 @@ class DatosGeneralesActivity : AppCompatActivity() {
             }
     }
 
-    private fun tomarFoto(tipo: TipoFoto) {
+    fun tomarFoto(tipo: TipoFoto) {
         tipoFotoActual = tipo
 
-        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-        val storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-
-        val file = File.createTempFile(
-            "${tipo.name}_$timeStamp",
-            ".jpg",
-            storageDir
-        )
+        val file = crearArchivoFoto(tipo)
+        currentPhotoFile = file
 
         fotoUri = FileProvider.getUriForFile(
             this,
@@ -293,6 +317,16 @@ class DatosGeneralesActivity : AppCompatActivity() {
     }
 
 
+    private fun crearArchivoFoto(tipo: TipoFoto): File {
+        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+        val storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+
+        return File.createTempFile(
+            "${tipo.name}_$timeStamp",
+            ".jpg",
+            storageDir
+        )
+    }
     private fun cargarDatosGenerales() {
 
         FirebaseFirestore.getInstance()

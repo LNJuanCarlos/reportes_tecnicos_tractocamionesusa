@@ -18,5 +18,7 @@ data class DatosGenerales(
     val vinFotoUrl: String? = null,
     val placaFotoUrl: String? = null,
     val frontalFotoUrl: String? = null,
-    val kmFotoUrl: String? = null
+    val kmFotoUrl: String? = null,
+    var cajaFotoUrl: String? = null,
+    var motorFotoUrl: String? = null
 )

@@ -25,8 +25,8 @@ class SiguienteSeccionActivity : AppCompatActivity() {
 
     private val secciones = mutableListOf(
         SeccionHome("datos", "Datos generales"),
-        SeccionHome("placa", "Placa / Frontal"),
-        SeccionHome("vin", "VIN / KM / HR"),
+        SeccionHome("evaluacion", "Evaluacion de Cabina"),
+        SeccionHome("neumaticos", "Neumáticos y ruedas"),
         SeccionHome("motor", "Motor"),
         SeccionHome("chasis", "Chasis"),
         SeccionHome("electrico", "Sistema eléctrico")

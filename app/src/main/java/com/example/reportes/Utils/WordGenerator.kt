@@ -106,7 +106,9 @@ object WordGenerator {
                         "{{foto_placa}}" to datos.placaFotoUrl,
                         "{{foto_vin}}" to datos.vinFotoUrl,
                         "{{foto_frontal}}" to datos.frontalFotoUrl,
-                        "{{foto_km}}" to datos.kmFotoUrl
+                        "{{foto_km}}" to datos.kmFotoUrl,
+                        "{{foto_modelo_serie}}" to datos.motorFotoUrl,
+                        "{{foto_caja_cambios}}" to datos.cajaFotoUrl
                     )
 
                     val fotosIterator = fotosWord.entries.iterator()

@@ -160,11 +160,45 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="8dp">
+
         <EditText
             android:id="@+id/etcaja"
             android:hint="Caja de Cambios"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:inputType="textCapCharacters"/>
+
+        <Button
+            android:id="@+id/btnFotoCaja"
+            android:text="📷"
+            android:layout_width="76dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="8dp"/>
+
+        <Button
+            android:id="@+id/btnVerCaja"
+            android:text="VER"
+            android:layout_width="76dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="6dp"/>
+
+    </LinearLayout>
+
+        <!-- PREVIEW CAJA -->
+        <ImageView
+            android:id="@+id/imgPreviewCaja"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="160dp"
+            android:scaleType="centerCrop"
+            android:visibility="gone"
+            android:background="#E0E0E0"
+            android:layout_marginBottom="12dp"/>
 
         <EditText
             android:id="@+id/etmotorModelo"
@@ -172,11 +206,45 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+
         <EditText
             android:id="@+id/etMotorSerie"
             android:hint="Motor - Serie"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:inputType="textCapCharacters"/>
+
+            <Button
+                android:id="@+id/btnFotoMotor"
+                android:text="📷"
+                android:layout_width="76dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="8dp"/>
+
+            <Button
+                android:id="@+id/btnVerMotor"
+                android:text="VER"
+                android:layout_width="76dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="6dp"/>
+
+    </LinearLayout>
+
+        <!-- PREVIEW CAJA -->
+        <ImageView
+            android:id="@+id/imgPreviewMotor"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="160dp"
+            android:scaleType="centerCrop"
+            android:visibility="gone"
+            android:background="#E0E0E0"
+            android:layout_marginBottom="12dp"/>
 
 
         <EditText
