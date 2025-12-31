@@ -133,7 +133,7 @@ class DatosGeneralesActivity : AppCompatActivity() {
         btnVerVin.isEnabled = false
         btnVerVin.alpha = 0.5f
 
-        listOf(btnVerPlaca, btnVerFrontal, btnVerKm).forEach {
+        listOf(btnVerPlaca, btnVerFrontal, btnVerKm, btnVerCaja, btnVerMotor).forEach {
             it.isEnabled = false
             it.alpha = 0.5f
         }
@@ -142,6 +142,8 @@ class DatosGeneralesActivity : AppCompatActivity() {
         btnVerPlaca.setOnClickListener { togglePreview(TipoFoto.PLACA) }
         btnVerFrontal.setOnClickListener { togglePreview(TipoFoto.FRONTAL) }
         btnVerKm.setOnClickListener { togglePreview(TipoFoto.KM) }
+        btnVerCaja.setOnClickListener { togglePreview(TipoFoto.CAJA_CAMBIOS) }
+        btnVerMotor.setOnClickListener { togglePreview(TipoFoto.MOTOR) }
 
 
 
