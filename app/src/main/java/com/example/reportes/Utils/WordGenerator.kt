@@ -19,9 +19,19 @@ import org.apache.poi.xwpf.usermodel.XWPFDocument
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import kotlin.math.min
 
 object WordGenerator {
+
+    private fun formatearFecha(timestamp: Long): String {
+        if (timestamp == 0L) return ""
+
+        val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+        return sdf.format(Date(timestamp))
+    }
 
     fun generarWordCompletoPruebaFoto(
         context: Context,
@@ -49,6 +59,7 @@ object WordGenerator {
             .addOnSuccessListener { datosDoc ->
                 val datos = datosDoc.toObject(DatosGenerales::class.java)
                 if (datos != null) {
+                    val fechaFormateada = formatearFecha(datos.fecha)
                     val datosMap = mapOf(
                         "{{cliente}}" to datos.cliente,
                         "{{marca}}" to datos.marca,
@@ -61,7 +72,8 @@ object WordGenerator {
                         "{{motor_serie}}" to datos.motorSerie,
                         "{{km}}" to datos.km,
                         "{{horas}}" to datos.hr,
-                        "{{frontal}}" to datos.frontal
+                        "{{frontal}}" to datos.frontal,
+                        "{{fecha}}" to fechaFormateada
                     )
 
                     // Reemplazar texto en párrafos

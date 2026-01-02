@@ -13,6 +13,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
@@ -57,6 +58,7 @@ class DatosGeneralesActivity : AppCompatActivity() {
     private lateinit var etmotorSerie: EditText
     private lateinit var currentPhotoFile: File
 
+    private lateinit var tvFecha: TextView
     private lateinit var tipoFotoActual: TipoFoto
     private var fotoUri: Uri? = null
 
@@ -155,7 +157,7 @@ class DatosGeneralesActivity : AppCompatActivity() {
             }
 
 
-
+         tvFecha = findViewById(R.id.tvFecha)
          etCliente = findViewById(R.id.etCliente)
          etMarca = findViewById(R.id.etMarca)
          etPlaca = findViewById(R.id.etPlaca)
@@ -199,12 +201,47 @@ class DatosGeneralesActivity : AppCompatActivity() {
                 frontalFotoUrl = fotoUrls[TipoFoto.FRONTAL],
                 kmFotoUrl = fotoUrls[TipoFoto.KM],
                 cajaFotoUrl = fotoUrls[TipoFoto.CAJA_CAMBIOS],
-                motorFotoUrl = fotoUrls[TipoFoto.MOTOR]
+                motorFotoUrl = fotoUrls[TipoFoto.MOTOR],
+
+                fecha = System.currentTimeMillis()
             )
 
             guardarDatosGenerales(datos)
+            guardarFechaSiNoExiste(evaluacionId)
         }
 
+    }
+
+    private fun formatearFecha(timestamp: Long): String {
+        val sdf = SimpleDateFormat("dd/MM/yyyy", Locale("es", "PE"))
+        return sdf.format(Date(timestamp))
+    }
+
+    private fun guardarFechaSiNoExiste(evaluacionId: String) {
+
+        val db = FirebaseFirestore.getInstance()
+
+        val docRef = db.collection("evaluaciones")
+            .document(evaluacionId)
+            .collection("datosGenerales")
+            .document("info")
+
+        docRef.get().addOnSuccessListener { document ->
+
+            if (!document.exists() || !document.contains("fecha")) {
+
+                val fechaActual = obtenerFechaActual()
+
+                docRef.set(
+                    mapOf("fecha" to fechaActual),
+                    SetOptions.merge()
+                )
+            }
+        }
+    }
+
+    private fun obtenerFechaActual(): Long {
+        return System.currentTimeMillis()
     }
 
     private val requestCameraPermission =
@@ -372,6 +409,11 @@ class DatosGeneralesActivity : AppCompatActivity() {
                     etcajaCambios.setText(doc.getString("cajaCambios"))
                     etmotorModelo.setText(doc.getString("motorModelo"))
                     etmotorSerie.setText(doc.getString("motorSerie"))
+
+                    val fechaTimestamp = doc.getLong("fecha")
+                    if (fechaTimestamp != null) {
+                        tvFecha.text = formatearFecha(fechaTimestamp)
+                    }
                 }
             }
             .addOnFailureListener {

@@ -8,6 +8,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="4dp">
+
         <TextView
             android:text="Datos Generales"
             android:textSize="20sp"
@@ -15,6 +21,17 @@
             android:layout_marginBottom="12dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
+
+        <TextView
+            android:id="@+id/tvFecha"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="60dp"
+            android:text="Fecha:"
+            android:textStyle="bold"
+            android:textSize="20sp"/>
+
+        </LinearLayout>
 
         <EditText
             android:id="@+id/etCliente"
