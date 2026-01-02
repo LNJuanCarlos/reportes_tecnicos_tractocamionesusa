@@ -167,7 +167,7 @@ object WordGenerator {
                     placeholder,
                     tempFile,
                     420.0,
-                    180.0
+                    160.0
                 )
                 tempFile.delete()
                 onFinish()

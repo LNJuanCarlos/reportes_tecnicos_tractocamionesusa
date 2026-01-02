@@ -207,6 +207,21 @@ class DatosGeneralesActivity : AppCompatActivity() {
 
     }
 
+    private val requestCameraPermission =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            if (granted) {
+                tomarFoto(tipoFotoActual)
+            } else {
+                Toast.makeText(this, "Permiso de cámara denegado", Toast.LENGTH_LONG).show()
+            }
+        }
+
+    private fun tienePermisoCamara(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.CAMERA
+        ) == PackageManager.PERMISSION_GRANTED
+    }
     private val fotoCampoFirestore = mapOf(
         TipoFoto.VIN to "vinFotoUrl",
         TipoFoto.PLACA to "placaFotoUrl",
@@ -305,6 +320,11 @@ class DatosGeneralesActivity : AppCompatActivity() {
 
     fun tomarFoto(tipo: TipoFoto) {
         tipoFotoActual = tipo
+
+        if (!tienePermisoCamara()) {
+            requestCameraPermission.launch(Manifest.permission.CAMERA)
+            return
+        }
 
         val file = crearArchivoFoto(tipo)
         currentPhotoFile = file
